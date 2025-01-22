@@ -12,7 +12,7 @@ const nav_items = [
   {
     id: 2,
     label: "Source Code",
-    link: "https://github.com/ketanip/private-article-reader",
+    link: "https://github.com/huddle6/private-article-reader",
     icon: <FiGithub />,
   },
 ];
