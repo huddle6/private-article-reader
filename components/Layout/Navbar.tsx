@@ -19,11 +19,11 @@ const nav_items = [
 
 const Navbar = () => {
   return (
-    <div className="flex flex-col items-center gap-2 px-2 py-4 border-b-2 lg:flex-row">
+    <div className="navbar flex flex-col items-center gap-2 px-2 py-4 border-b-2 lg:flex-row">
       <Link className="flex-1" href="/">
-        <h2 className="text-lg font-bold ">Private Article Reader</h2>
+        <h2 className="text-lg font-bold">Private Article Reader</h2>
       </Link>
-      <div className="flex gap-8 ">
+      <div className="flex gap-8">
         {nav_items.map((item) => (
           <Link
             href={item.link}
