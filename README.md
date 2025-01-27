@@ -5,7 +5,7 @@
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhuddle6%2Fprivate-article-reader) [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https%3A%2F%2Fgithub.com%2Fhuddle6%2Fprivate-article-readert)
 
-✨ See live demo [here](https://private-article-reader.vercel.app/).
+✨ See live demo [here](https://private-article-reader.vercel.app/). 
 
 `Private Article Reader` is a Next.JS app that scrapes, parses the article and shows it in a standard easy-to-understand manner. It removes all JavaScript from the original page, including but not limited to trackers and other elements such as inputs and buttons. 🚀
 
