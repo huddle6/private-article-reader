@@ -1,27 +1,33 @@
-"use client";
+import React, { Component, ErrorInfo, ReactNode } from "react";
 
-import Link from "next/link";
-
-export default function Error({
-  error,
-  reset,
-}: {
-  error: Error;
-  reset: () => void;
-}) {
-  return (
-    <div className="flex flex-col items-center gap-1 mt-4 text-center">
-      <h2 className=""> {error.message}!</h2>
-
-      <Link href="/">
-        <button className="px-4 py-2 mt-2 text-white bg-black rounded max-w-prose">
-          Go to homepage.
-        </button>
-      </Link>
-
-      <button onClick={() => reset()} className="underline cursor-pointer">
-        Try again
-      </button>
-    </div>
-  );
+interface Props {
+  children: ReactNode;
 }
+
+interface State {
+  hasError: boolean;
+}
+
+class ErrorBoundary extends Component<Props, State> {
+  public state: State = {
+    hasError: false
+  };
+
+  public static getDerivedStateFromError(_: Error): State {
+    return { hasError: true };
+  }
+
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("Uncaught error:", error, errorInfo);
+  }
+
+  public render() {
+    if (this.state.hasError) {
+      return <h1>Sorry, something went wrong.</h1>;
+    }
+
+    return this.props.children;
+  }
+}
+
+export default ErrorBoundary;
