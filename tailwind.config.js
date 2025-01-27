@@ -5,6 +5,16 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  theme: {},
-  plugins: [require('@tailwindcss/typography'),],
+  theme: {
+    extend: {
+      colors: {
+        primary: '#1D4ED8',
+        secondary: '#9333EA',
+      },
+      fontFamily: {
+        sans: ['Roboto', 'sans-serif'],
+      },
+    },
+  },
+  plugins: [require('@tailwindcss/typography')],
 }
