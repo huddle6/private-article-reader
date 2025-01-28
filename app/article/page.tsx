@@ -16,10 +16,15 @@ const getArticle = async (article_url: string | null, userAgent: string) => {
       throw new Error('The provided URL is invalid. Please check the URL and try again.');
     }
 
+    const parserOptions = {
+      wordsPerMinute: 300,
+      descriptionTruncateLen: 210,
+      descriptionLengthThreshold: 180,
+      contentLengthThreshold: 200,
+    };
+
     // Scraping and preparing article with user-agent header.
-    const article = await extract(article_url, {
-      descriptionTruncateLen: 210
-    }, {
+    const article = await extract(article_url, parserOptions, {
       headers: {
         'user-agent': userAgent
       }
