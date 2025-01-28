@@ -20,11 +20,16 @@ const getArticle = async (article_url: string | null) => {
     // Returning parsed article data in props to UI.
     return article;
   } catch (error) {
-    console.error(`Error fetching article: ${error.message}`);
-    if (error.message.includes("INVALID URL")) {
-      throw new Error("The provided URL is invalid. Please check the URL and try again.");
+    if (error instanceof Error) {
+      console.error(`Error fetching article: ${error.message}`);
+      if (error.message.includes("INVALID URL")) {
+        throw new Error("The provided URL is invalid. Please check the URL and try again.");
+      } else {
+        throw new Error("An error occurred while fetching the article. Please try again later.");
+      }
     } else {
-      throw new Error("An error occurred while fetching the article. Please try again later.");
+      console.error("An unknown error occurred.");
+      throw new Error("An unknown error occurred. Please try again later.");
     }
   }
 };
@@ -111,8 +116,13 @@ const ArticlePage = async ({
       </div>
     );
   } catch (error) {
-    console.error(`Error rendering article page: ${error.message}`);
-    return <div>An error occurred: {error.message}</div>;
+    if (error instanceof Error) {
+      console.error(`Error rendering article page: ${error.message}`);
+      return <div>An error occurred: {error.message}</div>;
+    } else {
+      console.error("An unknown error occurred.");
+      return <div>An unknown error occurred. Please try again later.</div>;
+    }
   }
 };
 
