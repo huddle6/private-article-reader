@@ -13,13 +13,14 @@ const how_it_works = [
   },
   {
     id: 3,
-    text: "We display it in and easy to read format."
+    text: "We display it in an easy to read format."
   },
 ];
 
 const LandingPage = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const [history, setHistory] = useState<string[]>([]);
+  const [history, setHistory] = useState<{ link: string, date: string }[]>([]);
+  const [urlInput, setUrlInput] = useState('');
 
   useEffect(() => {
     const savedHistory = localStorage.getItem('linkHistory');
@@ -32,34 +33,42 @@ const LandingPage = () => {
     setIsCollapsed(!isCollapsed);
   };
 
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const newEntry = { link: urlInput, date: new Date().toISOString() };
+    let history = JSON.parse(localStorage.getItem('linkHistory') || '[]');
+
+    // Remove duplicates
+    history = history.filter((entry: { link: string }) => entry.link !== urlInput);
+    history.unshift(newEntry);
+    if (history.length > 100) history = history.slice(0, 100);
+    localStorage.setItem('linkHistory', JSON.stringify(history));
+    setHistory(history);
+    (e.target as HTMLFormElement).submit();
+  };
+
   return (
     <div className="px-2">
       {/* Main form */}
       <div className="my-4 border-b-2">
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const urlInput = (e.target as HTMLFormElement).url.value;
-            let history = JSON.parse(localStorage.getItem('linkHistory') || '[]');
-            history.unshift(urlInput);
-            if (history.length > 100) history = history.slice(0, 100);
-            localStorage.setItem('linkHistory', JSON.stringify(history));
-            (e.target as HTMLFormElement).submit();
-          }}
+          onSubmit={handleFormSubmit}
           action="/article"
           method="GET"
-          className="flex flex-col items-center gap-4 my-4"
+          className="flex items-center gap-4 my-4"
         >
           <input
             type="url"
             name="url"
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
             required
-            className="flex-1 min-width-full px-3 py-2 border-2 rounded outline-none"
+            className="flex-1 px-3 py-2 border-2 rounded outline-none"
             placeholder="Enter article URL here."
           />
           <button
             type="submit"
-            className="min-width-full px-4 py-2 text-white bg-black rounded hover:bg-gray-800"
+            className="px-4 py-2 text-white bg-black rounded hover:bg-gray-800"
           >
             Load Article
           </button>
@@ -68,25 +77,31 @@ const LandingPage = () => {
 
       {/* History section */}
       <div className="my-4 border-b-2">
-        <h2 className="text-lg font-bold">History</h2>
-        <ul>
-          {history.map((link, index) => (
-            <li key={index}>
-              <a href={link} target="_blank" rel="noopener noreferrer">
-                {link}
-              </a>
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-bold">History</h2>
+          <button
+            onClick={() => {
+              localStorage.removeItem('linkHistory');
+              setHistory([]);
+            }}
+            className="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-800"
+          >
+            Clear History
+          </button>
+        </div>
+        <ul className="max-h-40 overflow-y-auto">
+          {history.map((entry, index) => (
+            <li key={index} className="flex justify-between">
+              <span
+                onClick={() => setUrlInput(entry.link)}
+                className="cursor-pointer text-blue-600"
+              >
+                {entry.link}
+              </span>
+              <span>{new Date(entry.date).toLocaleString()}</span>
             </li>
           ))}
         </ul>
-        <button
-          onClick={() => {
-            localStorage.removeItem('linkHistory');
-            setHistory([]);
-          }}
-          className="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-800"
-        >
-          Clear
-        </button>
       </div>
 
       {/* How it works */}
