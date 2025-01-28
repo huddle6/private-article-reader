@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const how_it_works = [
   {
@@ -16,9 +16,14 @@ const how_it_works = [
 ];
 
 const LandingPage = () => {
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
     <div className="px-2 ">
-      
       {/* Main form. */}
       <div className="my-4 border-b-2">
         <form
@@ -44,23 +49,26 @@ const LandingPage = () => {
 
       {/* How it works. */}
       <div className="flex flex-col gap-4 px-4 py-4 bg-white rounded shadow-lg">
+        <button
+          onClick={toggleCollapse}
+          className="text-lg font-bold text-left focus:outline-none"
+        >
+          How it works ? {isCollapsed ? "+" : "-"}
+        </button>
         
-        <h2 className="text-lg font-bold">How it works ?</h2>
-
-        {
-          how_it_works.map(item => (
-            <div key={item.id} className="flex flex-row items-center gap-2">
-
-                <span className="px-2 font-bold text-white bg-black rounded-full ">{item.id}</span>
-                <span>{item.text}</span>
-
-            </div>
-          ))
-        }
-
+        {!isCollapsed && (
+          <div>
+            {
+              how_it_works.map(item => (
+                <div key={item.id} className="flex flex-row items-center gap-2">
+                  <span className="px-2 font-bold text-white bg-black rounded-full ">{item.id}</span>
+                  <span>{item.text}</span>
+                </div>
+              ))
+            }
+          </div>
+        )}
       </div>
-
-
     </div>
   );
 };
