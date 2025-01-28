@@ -35,7 +35,7 @@ const LandingPage = () => {
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const newEntry = { link: urlInput, date: new Date().toISOString() };
+    const newEntry = { link: urlInput, date: new Date().toISOString('en-GB') };
     let history = JSON.parse(localStorage.getItem('linkHistory') || '[]');
 
     // Remove duplicates
@@ -105,7 +105,7 @@ const LandingPage = () => {
       </div>
 
       {/* How it works */}
-      <div className="flex flex-col gap-4 px-4 py-4 bg-white rounded shadow-lg">
+      <div className="flex flex-col gap-4 px-4 py-4 rounded shadow-lg">
         <h2 
           className="text-lg font-bold cursor-pointer text-left focus:outline-none"
           onClick={toggleCollapse}
