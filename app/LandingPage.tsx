@@ -19,10 +19,13 @@ const how_it_works = [
 
 const LandingPage = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState<string[]>([]);
 
   useEffect(() => {
-    setHistory(JSON.parse(localStorage.getItem('linkHistory')) || []);
+    const savedHistory = localStorage.getItem('linkHistory');
+    if (savedHistory) {
+      setHistory(JSON.parse(savedHistory));
+    }
   }, []);
 
   const toggleCollapse = () => {
@@ -36,12 +39,12 @@ const LandingPage = () => {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const urlInput = e.target.url.value;
-            let history = JSON.parse(localStorage.getItem('linkHistory')) || [];
+            const urlInput = (e.target as HTMLFormElement).url.value;
+            let history = JSON.parse(localStorage.getItem('linkHistory') || '[]');
             history.unshift(urlInput);
             if (history.length > 100) history = history.slice(0, 100);
             localStorage.setItem('linkHistory', JSON.stringify(history));
-            e.target.submit();
+            (e.target as HTMLFormElement).submit();
           }}
           action="/article"
           method="GET"
