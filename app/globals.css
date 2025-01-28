@@ -7,9 +7,9 @@ body {
 }
 
 .navbar {
-  @apply bg-primary text-white p-4;
+  @apply bg-gray-100 text-black p-4;
 }
 
 .navbar a {
-  @apply text-white hover:text-secondary;
+  @apply text-black hover:text-secondary;
 }
