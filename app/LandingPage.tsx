@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from 'next/router';
 
 const how_it_works = [
   {
@@ -21,6 +22,7 @@ const LandingPage = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [history, setHistory] = useState<{ link: string, date: string }[]>([]);
   const [urlInput, setUrlInput] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     const savedHistory = localStorage.getItem('linkHistory');
@@ -44,7 +46,12 @@ const LandingPage = () => {
     if (history.length > 100) history = history.slice(0, 100);
     localStorage.setItem('linkHistory', JSON.stringify(history));
     setHistory(history);
-    (e.target as HTMLFormElement).submit();
+
+    const userAgent = navigator.userAgent;
+    router.push({
+      pathname: '/article',
+      query: { url: urlInput, userAgent: userAgent }
+    });
   };
 
   return (
@@ -53,8 +60,6 @@ const LandingPage = () => {
       <div className="my-4 border-b-2">
         <form
           onSubmit={handleFormSubmit}
-          action="/article"
-          method="GET"
           className="flex items-center gap-4 my-4"
         >
           <input
