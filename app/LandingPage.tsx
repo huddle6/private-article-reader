@@ -55,14 +55,14 @@ const LandingPage = () => {
           className="text-lg font-bold cursor-pointer text-left focus:outline-none"
           onClick={toggleCollapse}
         >
-          How it works? {isCollapsed ? "+" : "-"}
+          How it works ? {isCollapsed ? "" : ""}
         </h2>
         
         {!isCollapsed && (
           <div>
             {
               how_it_works.map(item => (
-                <div key={item.id} className="flex flex-row items-center gap-2">
+                <div key={item.id} className="flex flex-row items-center gap-2 mb-2"> {/* Add margin-bottom for spacing */}
                   <span className="px-2 font-bold text-white bg-black rounded-full ">{item.id}</span>
                   <span>{item.text}</span>
                 </div>
