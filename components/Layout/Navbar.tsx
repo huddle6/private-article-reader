@@ -1,12 +1,13 @@
 import React from "react";
 import Link from "next/link";
-import { FiGithub } from "react-icons/fi";
+import { FiCompass, FiGithub } from "react-icons/fi";
 
 const nav_items = [
   {
     id: 1,
     label: "Home",
     link: "/",
+    icon: <FiCompass />,
   },
   {
     id: 2,
@@ -18,18 +19,18 @@ const nav_items = [
 
 const Navbar = () => {
   return (
-    <div className="navbar flex flex-col items-center gap-4 px-4 py-6 border-b-2 lg:flex-row lg:justify-between">
-      <Link className="text-2xl font-bold" href="/">
-        Private Article Reader
+    <div className="navbar flex flex-col items-center gap-2 px-2 py-4 border-b-2 lg:flex-row">
+      <Link className="flex-1" href="/">
+        <h2 className="text-lg font-bold">Private Article Reader</h2>
       </Link>
-      <div className="flex gap-6">
+      <div className="flex gap-8">
         {nav_items.map((item) => (
           <Link
             href={item.link}
             key={item.id}
-            className="flex items-center gap-2 text-lg"
+            className="flex items-center gap-2"
           >
-            {item.icon && <span>{item.icon}</span>}
+            {item.icon}{" "}
             <span className="cursor-pointer hover:underline">
               {item.label}
             </span>
