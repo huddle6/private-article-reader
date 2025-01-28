@@ -35,7 +35,7 @@ const LandingPage = () => {
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const newEntry = { link: urlInput, date: new Date().toISOString('en-GB') };
+    const newEntry = { link: urlInput, date: new Date().toLocaleString('en-GB') };
     let history = JSON.parse(localStorage.getItem('linkHistory') || '[]');
 
     // Remove duplicates
