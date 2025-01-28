@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import validator from 'validator';
 import { Roboto } from "next/font/google";
 import { redirect } from "next/navigation";
 import { ArticleData, extract } from "@extractus/article-extractor";
