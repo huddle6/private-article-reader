@@ -49,12 +49,12 @@ const LandingPage = () => {
 
       {/* How it works. */}
       <div className="flex flex-col gap-4 px-4 py-4 bg-white rounded shadow-lg">
-        <button
+        <h2 
+          className="text-lg font-bold cursor-pointer text-left focus:outline-none"
           onClick={toggleCollapse}
-          className="text-lg font-bold text-left focus:outline-none"
         >
-          How it works ? {isCollapsed ? "+" : "-"}
-        </button>
+          How it works? {isCollapsed ? "+" : "-"}
+        </h2>
         
         {!isCollapsed && (
           <div>
