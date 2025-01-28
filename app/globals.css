@@ -11,5 +11,5 @@ body {
 }
 
 .navbar a {
-  @apply text-black hover:text-gray-900;
+  @apply text-black hover:text-gray-800;
 }
