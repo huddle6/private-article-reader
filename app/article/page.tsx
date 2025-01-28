@@ -17,7 +17,7 @@ const getArticle = async (article_url: string | null, userAgent: string) => {
     }
 
     // Scraping and preparing article with user-agent header.
-    const article = await extract(article_url, {}, {
+    const article = await extract(article_url, null, {
       headers: {
         'user-agent': userAgent
       }
