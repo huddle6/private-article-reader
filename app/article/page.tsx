@@ -1,16 +1,18 @@
 import React from "react";
 import Link from "next/link";
+import validator from 'validator';
 import { Roboto } from "next/font/google";
 import { redirect } from "next/navigation";
 import { ArticleData, extract } from "@extractus/article-extractor";
 import { FiFileText, FiMic, FiUser, FiWatch } from "react-icons/fi";
+import { isValidURL } from "some-url-validation-lib"; 
 
 const roboto = Roboto({ subsets: ["latin"], weight: "300" });
 
 const getArticle = async (article_url: string | null) => {
   try {
-    if (article_url === null) {
-      redirect("/");
+    if (article_url === null || !validator.isURL(article_url)) {
+      throw new Error("INVALID URL");
     }
 
     // Scraping and preparing article.
