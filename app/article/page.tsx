@@ -1,40 +1,44 @@
-import React from "react";
-import Link from "next/link";
-import { Roboto } from "next/font/google";
-import { redirect } from "next/navigation";
-import { ArticleData, extract } from "@extractus/article-extractor";
-import { FiFileText, FiMic, FiUser, FiWatch } from "react-icons/fi";
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Roboto } from 'next/font/google';
+import { useRouter } from 'next/router';
+import { ArticleData, extract } from '@extractus/article-extractor';
+import { FiFileText, FiMic, FiUser, FiWatch } from 'react-icons/fi';
 import validator from 'validator';
 
-const roboto = Roboto({ subsets: ["latin"], weight: "300" });
+const roboto = Roboto({ subsets: ['latin'], weight: '300' });
 
-const getArticle = async (article_url: string | null) => {
+const getArticle = async (article_url: string | null, userAgent: string) => {
   try {
     if (article_url === null || !validator.isURL(article_url)) {
-      throw new Error("The provided URL is invalid. Please check the URL and try again.");
+      throw new Error('The provided URL is invalid. Please check the URL and try again.');
     }
 
-    // Scraping and preparing article.
-    const article = await extract(article_url);
+    // Scraping and preparing article with user-agent header.
+    const article = await extract(article_url, {}, {
+      headers: {
+        'user-agent': userAgent
+      }
+    });
 
     // Returning parsed article data in props to UI.
     return article;
   } catch (error) {
     if (error instanceof Error) {
       console.error(`Error fetching article: ${error.message}`);
-      if (error.message.includes("INVALID URL")) {
-        throw new Error("The provided URL is invalid. Please check the URL and try again.");
+      if (error.message.includes('INVALID URL')) {
+        throw new Error('The provided URL is invalid. Please check the URL and try again.');
       } else {
-        throw new Error("An error occurred while fetching the article. Please try again later.");
+        throw new Error('An error occurred while fetching the article. Please try again later.');
       }
     } else {
-      console.error("An unknown error occurred.");
-      throw new Error("An unknown error occurred. Please try again later.");
+      console.error('An unknown error occurred.');
+      throw new Error('An unknown error occurred. Please try again later.');
     }
   }
 };
 
-const ArticleImage: React.FC<{article: ArticleData}> = ({article}) => {
+const ArticleImage: React.FC<{ article: ArticleData }> = ({ article }) => {
   if (article.image) {
     return (
       <div>
@@ -54,76 +58,91 @@ const ArticleImage: React.FC<{article: ArticleData}> = ({article}) => {
   return <></>;
 };
 
-const ArticlePage = async ({
-  searchParams,
-}: {
-  searchParams: { url: string };
-}) => {
-  try {
-    const url = searchParams.url;
-    // Loading article
-    const article = await getArticle(url);
-    if (!article) {
-      throw new Error("The article could not be loaded. Please check the URL and try again.");
-    }
+const ArticlePage: React.FC = () => {
+  const [article, setArticle] = useState<ArticleData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { url, userAgent } = router.query;
 
-    return (
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        if (typeof url === 'string' && typeof userAgent === 'string') {
+          const fetchedArticle = await getArticle(url, userAgent);
+          setArticle(fetchedArticle);
+        } else {
+          throw new Error('Invalid URL or user agent.');
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          console.error(`Error rendering article page: ${err.message}`);
+          setError(`An error occurred: ${err.message}`);
+        } else {
+          console.error('An unknown error occurred.');
+          setError('An unknown error occurred. Please try again later.');
+        }
+      }
+    };
+
+    fetchArticle();
+  }, [url, userAgent]);
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!article) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div>
       <div>
-        <div>
-          {/* Read at source. */}
-          <Link
-            href={article.source || "/"}
-            className="flex items-center justify-center gap-2 py-1 my-2 font-bold text-center underline bg-yellow-500 item"
-          >
-            <FiFileText /> <span>Read at source.</span>
-          </Link>
+        {/* Read at source. */}
+        <Link
+          href={article.source || '/'}
+          className="flex items-center justify-center gap-2 py-1 my-2 font-bold text-center underline bg-yellow-500 item"
+        >
+          <FiFileText /> <span>Read at source.</span>
+        </Link>
 
-          {/* Page Content. */}
-          <div className="px-2">
-            {/* Title */}
-            <h2 className="my-8 text-2xl font-bold text-center">
-              {article.title}
-            </h2>
+        {/* Page Content. */}
+        <div className="px-2">
+          {/* Title */}
+          <h2 className="my-8 text-2xl font-bold text-center">
+            {article.title}
+          </h2>
 
-            {/* Article main image. */}
-            <ArticleImage article={article} />
+          {/* Article main image. */}
+          <ArticleImage article={article} />
 
-            {/* Basic Info. */}
-            <div className="flex flex-row justify-center gap-6 mt-4">
-              <div className="flex flex-row items-center gap-2">
-                <FiUser /> {article.author || "No author found."}
-              </div>
-
-              <div className="flex flex-row items-center gap-2">
-                <FiWatch />{" "}
-                {new Date(article.published || "").toLocaleDateString() ||
-                  "Publishing time not found."}
-              </div>
-
-              <div className="flex flex-row items-center gap-2">
-                <FiMic />{" "}
-                {`${Math.round(Number(article.ttr) / 60)} Minutes` || "0 Minutes"}
-              </div>
+          {/* Basic Info. */}
+          <div className="flex flex-row justify-center gap-6 mt-4">
+            <div className="flex flex-row items-center gap-2">
+              <FiUser /> {article.author || 'No author found.'}
             </div>
 
-            {/* Parsed article body. */}
-            <article
-              className={"mx-auto my-0 prose max-w-6xl " + roboto.className}
-              dangerouslySetInnerHTML={{ __html: String(article.content) }}
-            ></article>
+            <div className="flex flex-row items-center gap-2">
+              <FiWatch />{' '}
+              {new Date(article.published || '').toLocaleDateString() ||
+                'Publishing time not found.'}
+            </div>
+
+            <div className="flex flex-row items-center gap-2">
+              <FiMic />{' '}
+              {`${Math.round(Number(article.ttr) / 60)} Minutes` || '0 Minutes'}
+            </div>
           </div>
+
+          {/* Parsed article body. */}
+          <article
+            className={'mx-auto my-0 prose max-w-6xl ' + roboto.className}
+            dangerouslySetInnerHTML={{ __html: String(article.content) }}
+          ></article>
         </div>
       </div>
-    );
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(`Error rendering article page: ${error.message}`);
-      return <div>An error occurred: {error.message}</div>;
-    } else {
-      console.error("An unknown error occurred.");
-      return <div>An unknown error occurred. Please try again later.</div>;
-    }
-  }
+    </div>
+  );
 };
 
 export default ArticlePage;
