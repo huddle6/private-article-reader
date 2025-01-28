@@ -5,9 +5,9 @@ import { FiCompass, FiGithub } from "react-icons/fi";
 const nav_items = [
   {
     id: 1,
-    label: "How it works ?",
+    label: "",
     link: "/",
-    icon: <FiCompass />,
+#    icon: <FiCompass />,
   },
   {
     id: 2,
