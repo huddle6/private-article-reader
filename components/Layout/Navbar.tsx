@@ -7,7 +7,7 @@ const nav_items = [
     id: 1,
     label: "",
     link: "/",
-#    icon: <FiCompass />,
+//  icon: <FiCompass />,
   },
   {
     id: 2,
