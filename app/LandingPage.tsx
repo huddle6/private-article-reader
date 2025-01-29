@@ -32,7 +32,7 @@ const LandingPage = () => {
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
-
+  
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const newEntry = { link: urlInput, date: new Date().toISOString() };
@@ -103,7 +103,7 @@ const LandingPage = () => {
           ))}
         </ul>
       </div>
-
+      
       {/* How it works */}
       <div className="flex flex-col gap-4 px-4 py-4 rounded shadow-lg">
         <h2 
