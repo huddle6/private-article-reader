@@ -23,13 +23,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install @extractus/article-extractor node-fetch
+          npm install @extractus/article-extractor
 
       - name: Run article extraction
         run: |
           echo "const input = '${{ github.event.inputs.url }}';" > extract.js
           echo "import('@extractus/article-extractor').then(({ extract }) => {" >> extract.js
-          echo "  const fetch = require('node-fetch');" >> extract.js
           echo "  async function run() {" >> extract.js
           echo "    try {" >> extract.js
           echo "      const article = await extract(input, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0' } });" >> extract.js
@@ -38,9 +37,7 @@ jobs:
           echo "    } catch (err) {" >> extract.js
           echo "      if (err.response && err.response.status === 403) {" >> extract.js
           echo "        const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(input);" >> extract.js
-          echo "        const response = await fetch(proxyUrl, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0' } });" >> extract.js
-          echo "        const data = await response.text();" >> extract.js
-          echo "        const articleProxy = await extract(data, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0' } });" >> extract.js
+          echo "        const articleProxy = await extract(proxyUrl, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0' } });" >> extract.js
           echo "        console.log(JSON.stringify(articleProxy, null, 2));" >> extract.js
           echo "        require('fs').writeFileSync('extracted-article.json', JSON.stringify(articleProxy, null, 2));" >> extract.js
           echo "      } else {" >> extract.js
