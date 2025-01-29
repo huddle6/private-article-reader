@@ -11,7 +11,7 @@
     "lint": "next lint"
   },
   "engines": {
-    "node": "^18"
+    "node": "^22"
   },
   "dependencies": {
     "@extractus/article-extractor": "^8.0.0",
