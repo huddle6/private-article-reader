@@ -31,18 +31,18 @@ const LandingPage = () => {
         <form
           action="/article"
           method="GET"
-          className="flex flex-col items-center gap-4 my-4"
+          className="flex items-center gap-4 my-4"
         >
           <input
             type="url"
             name="url"
             required
-            className="flex-1 min-w-full px-3 py-2 border-2 rounded outline-none"
+            className="flex-1 px-3 py-2 border-2 rounded outline-none"
             placeholder="Enter article URL here."
           />
           <button
             type="submit"
-            className="min-w-full px-4 py-2 text-white bg-black rounded hover:bg-gray-800"
+            className="px-4 py-2 text-white bg-black rounded hover:bg-gray-800"
           >
             Load Article
           </button>
