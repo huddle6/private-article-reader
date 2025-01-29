@@ -19,7 +19,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Specify the Node.js version you want to use
+          node-version: '18'  # Updated to Node.js version 18
 
       - name: Install dependencies
         run: |
@@ -27,18 +27,19 @@ jobs:
 
       - name: Run article extraction
         run: |
-          echo "const { extract } = require('@extractus/article-extractor');" > extract.js
-          echo "const input = '${{ github.event.inputs.url }}';" >> extract.js
-          echo "async function run() {" >> extract.js
-          echo "  try {" >> extract.js
-          echo "    const article = await extract(input);" >> extract.js
-          echo "    console.log(JSON.stringify(article, null, 2));" >> extract.js
-          echo "    require('fs').writeFileSync('extracted-article.json', JSON.stringify(article, null, 2));" >> extract.js
-          echo "  } catch (err) {" >> extract.js
-          echo "    console.error(err);" >> extract.js
+          echo "const input = '${{ github.event.inputs.url }}';" > extract.js
+          echo "import('@extractus/article-extractor').then(({ extract }) => {" >> extract.js
+          echo "  async function run() {" >> extract.js
+          echo "    try {" >> extract.js
+          echo "      const article = await extract(input);" >> extract.js
+          echo "      console.log(JSON.stringify(article, null, 2));" >> extract.js
+          echo "      require('fs').writeFileSync('extracted-article.json', JSON.stringify(article, null, 2));" >> extract.js
+          echo "    } catch (err) {" >> extract.js
+          echo "      console.error(err);" >> extract.js
+          echo "    }" >> extract.js
           echo "  }" >> extract.js
-          echo "}" >> extract.js
-          echo "run();" >> extract.js
+          echo "  run();" >> extract.js
+          echo "});" >> extract.js
           node extract.js
 
       - name: Upload extracted article
