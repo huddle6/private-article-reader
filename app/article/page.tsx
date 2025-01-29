@@ -2,13 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Roboto } from 'next/font/google'; // Ensure Roboto is imported correctly
-import { useRouter } from 'next/router';
+import { Roboto } from 'next/font/google';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { ArticleData, extract } from '@extractus/article-extractor';
 import { FiFileText, FiMic, FiUser, FiWatch } from 'react-icons/fi';
 import validator from 'validator';
 
-// Initialize the Roboto font
 const roboto = Roboto({ subsets: ['latin'], weight: '300' });
 
 const getArticle = async (article_url: string | null, userAgent: string) => {
@@ -69,13 +68,14 @@ const ArticleImage: React.FC<{ article: ArticleData }> = ({ article }) => {
 const ArticlePage: React.FC = () => {
   const [article, setArticle] = useState<ArticleData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const { url, userAgent } = router.query;
+  const searchParams = useSearchParams();
+  const url = searchParams.get('url');
+  const userAgent = searchParams.get('userAgent');
 
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        if (typeof url === 'string' && typeof userAgent === 'string') {
+        if (url && userAgent) {
           const fetchedArticle = await getArticle(url, userAgent);
           setArticle(fetchedArticle);
         } else {
@@ -86,10 +86,8 @@ const ArticlePage: React.FC = () => {
       }
     };
 
-    if (router.isReady) {
-      fetchArticle();
-    }
-  }, [url, userAgent, router.isReady]);
+    fetchArticle();
+  }, [url, userAgent]);
 
   if (error) {
     return <div>{error}</div>;
