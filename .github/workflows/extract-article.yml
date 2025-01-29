@@ -31,7 +31,7 @@ jobs:
           echo "import('@extractus/article-extractor').then(({ extract }) => {" >> extract.js
           echo "  async function run() {" >> extract.js
           echo "    try {" >> extract.js
-          echo "      const article = await extract(input);" >> extract.js
+          echo "      const article = await extract(input, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0' } });" >> extract.js
           echo "      console.log(JSON.stringify(article, null, 2));" >> extract.js
           echo "      require('fs').writeFileSync('extracted-article.json', JSON.stringify(article, null, 2));" >> extract.js
           echo "    } catch (err) {" >> extract.js
