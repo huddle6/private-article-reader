@@ -2,11 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Roboto } from 'next/font/google'; // Ensure Roboto is imported correctly
 import { useRouter } from 'next/router';
 import { ArticleData, extract } from '@extractus/article-extractor';
 import { FiFileText, FiMic, FiUser, FiWatch } from 'react-icons/fi';
 import validator from 'validator';
 
+// Initialize the Roboto font
 const roboto = Roboto({ subsets: ['latin'], weight: '300' });
 
 const getArticle = async (article_url: string | null, userAgent: string) => {
@@ -107,7 +109,7 @@ const ArticlePage: React.FC = () => {
         </Link>
 
         <div className="px-2">
-          <h2 className="my-8 text-2xl font-bold text-center">
+          <h2 className={`my-8 text-2xl font-bold text-center ${roboto.className}`}>
             {article.title}
           </h2>
 
@@ -127,7 +129,7 @@ const ArticlePage: React.FC = () => {
             </div>
           </div>
 
-          <article className="mx-auto my-0 prose max-w-6xl" dangerouslySetInnerHTML={{ __html: String(article.content) }} />
+          <article className={`mx-auto my-0 prose max-w-6xl ${roboto.className}`} dangerouslySetInnerHTML={{ __html: String(article.content) }} />
         </div>
       </div>
     </div>
