@@ -1,0 +1,48 @@
+name: Extract Article
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'The URL of the article to extract'
+        required: true
+        default: 'https://example.com'  # You can set a default URL if desired
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # Specify the Node.js version you want to use
+
+      - name: Install dependencies
+        run: |
+          npm install @extractus/article-extractor
+
+      - name: Run article extraction
+        run: |
+          echo "const { extract } = require('@extractus/article-extractor');" > extract.js
+          echo "const input = '${{ github.event.inputs.url }}';" >> extract.js
+          echo "async function run() {" >> extract.js
+          echo "  try {" >> extract.js
+          echo "    const article = await extract(input);" >> extract.js
+          echo "    console.log(JSON.stringify(article, null, 2));" >> extract.js
+          echo "    require('fs').writeFileSync('extracted-article.json', JSON.stringify(article, null, 2));" >> extract.js
+          echo "  } catch (err) {" >> extract.js
+          echo "    console.error(err);" >> extract.js
+          echo "  }" >> extract.js
+          echo "}" >> extract.js
+          echo "run();" >> extract.js
+          node extract.js
+
+      - name: Upload extracted article
+        uses: actions/upload-artifact@v2
+        with:
+          name: extracted-article
+          path: extracted-article.json
