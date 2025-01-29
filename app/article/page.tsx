@@ -61,6 +61,10 @@ const ArticlePage = async ({
 }) => {
   try {
     const url = searchParams.url;
+    // Validate URL
+    if (!validator.isURL(url)) {
+      throw new Error("The provided URL is invalid. Please check the URL and try again.");
+    }
     // Loading article
     const article = await getArticle(url);
     if (!article) {
