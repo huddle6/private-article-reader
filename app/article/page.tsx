@@ -7,27 +7,43 @@ import { ArticleData, extract } from '@extractus/article-extractor';
 import { FiFileText, FiMic, FiUser, FiWatch } from 'react-icons/fi';
 import validator from 'validator';
 
-// Example of fetching article data (replace with actual implementation)
+const roboto = Roboto({ subsets: ['latin'], weight: '300' });
+
 const getArticle = async (article_url: string | null, userAgent: string) => {
-  if (article_url === null || !validator.isURL(article_url)) {
-    throw new Error('The provided URL is invalid. Please check the URL and try again.');
+  try {
+    if (article_url === null || !validator.isURL(article_url)) {
+      throw new Error('The provided URL is invalid. Please check the URL and try again.');
+    }
+
+    const parserOptions = {
+      wordsPerMinute: 300,
+      descriptionTruncateLen: 210,
+      descriptionLengthThreshold: 180,
+      contentLengthThreshold: 200,
+    };
+
+    // Scraping and preparing article with user-agent header.
+    const article = await extract(article_url, parserOptions, {
+      headers: {
+        'user-agent': userAgent,
+      },
+    });
+
+    // Returning parsed article data in props to UI.
+    return article;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`Error fetching article: ${error.message}`);
+      if (error.message.includes('INVALID URL')) {
+        throw new Error('The provided URL is invalid. Please check the URL and try again.');
+      } else {
+        throw new Error('An error occurred while fetching the article. Please try again later.');
+      }
+    } else {
+      console.error('An unknown error occurred.');
+      throw new Error('An unknown error occurred. Please try again later.');
+    }
   }
-
-  const parserOptions = {
-    wordsPerMinute: 300,
-    descriptionTruncateLen: 210,
-    descriptionLengthThreshold: 180,
-    contentLengthThreshold: 200,
-  };
-
-  // Scraping and preparing article with user-agent header.
-  const article = await extract(article_url, parserOptions, {
-    headers: {
-      'user-agent': userAgent,
-    },
-  });
-
-  return article;
 };
 
 const ArticleImage: React.FC<{ article: ArticleData }> = ({ article }) => {
