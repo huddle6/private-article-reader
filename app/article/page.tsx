@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Roboto } from 'next/font/google';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, redirect } from 'next/navigation';
 import { ArticleData, extract } from '@extractus/article-extractor';
 import { FiFileText, FiMic, FiUser, FiWatch } from 'react-icons/fi';
 import validator from 'validator';
@@ -79,7 +79,7 @@ const ArticlePage: React.FC = () => {
           const fetchedArticle = await getArticle(url, userAgent);
           setArticle(fetchedArticle);
         } else {
-          throw new Error('Invalid URL or user agent.');
+          redirect('/error'); // Redirect to an error page if URL or userAgent is invalid
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
