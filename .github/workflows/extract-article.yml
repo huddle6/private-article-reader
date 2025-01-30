@@ -48,9 +48,20 @@ jobs:
 
       - name: Verify Proxy
         run: |
-          response=$(curl -s -x http://localhost:8080 https://example.com)
-          echo "Response from example.com: $response"
-          echo "$response" > example_response.txt
+          echo "const https = require('https');" > verifyProxy.js
+          echo "const fs = require('fs');" >> verifyProxy.js
+          echo "const agent = new https.Agent({ proxy: 'http://localhost:8080' });" >> verifyProxy.js
+          echo "https.get('https://api.ipify.org', { agent }, (res) => {" >> verifyProxy.js
+          echo "  let data = '';" >> verifyProxy.js
+          echo "  res.on('data', chunk => { data += chunk; });" >> verifyProxy.js
+          echo "  res.on('end', () => {" >> verifyProxy.js
+          echo "    console.log('Response from ipify.org:', data);" >> verifyProxy.js
+          echo "    fs.writeFileSync('ipify_response.txt', data);" >> verifyProxy.js
+          echo "  });" >> verifyProxy.js
+          echo "}).on('error', (err) => {" >> verifyProxy.js
+          echo "  console.error('Error:', err);" >> verifyProxy.js
+          echo "});" >> verifyProxy.js
+          node verifyProxy.js
 
       - name: Install dependencies
         run: |
@@ -79,12 +90,6 @@ jobs:
         with:
           name: extracted-article
           path: extracted-article.json
-
-      - name: Send API request to ipify
-        run: |
-          response=$(curl -s -x http://localhost:8080 https://api.ipify.org)
-          echo "Response from ipify: $response"
-          echo "$response" > ipify_response.txt
 
       - name: Upload ipify response
         uses: actions/upload-artifact@v3
