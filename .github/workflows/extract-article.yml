@@ -41,6 +41,7 @@ jobs:
           npm install @extractus/article-extractor
 
       - name: Run article extraction
+        id: extract_article
         run: |
           echo "const input = '${{ github.event.inputs.url }}';" > extract.js
           echo "import('@extractus/article-extractor').then(({ extract }) => {" >> extract.js
@@ -62,3 +63,15 @@ jobs:
         with:
           name: extracted-article
           path: extracted-article.json
+
+      - name: Send API request to ipify
+        run: |
+          response=$(curl -s -x http://localhost:8080 https://api.ipify.org)
+          echo "Response from ipify: $response"
+          echo "$response" > ipify_response.txt
+
+      - name: Upload ipify response
+        uses: actions/upload-artifact@v3
+        with:
+          name: ipify-response
+          path: ipify_response.txt
