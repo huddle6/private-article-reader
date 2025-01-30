@@ -46,6 +46,22 @@ jobs:
         run: |
           sudo systemctl status nginx
 
+      - name: Verify 
+        run: |
+          echo "const https = require('https');" > verifyNoProxy.js
+          echo "const fs = require('fs');" >> verifyNoProxy.js
+          echo "https.get('https://api.ipify.org', (res) => {" >> verifyNoProxy.js
+          echo "  let data = '';" >> verifyNoProxy.js
+          echo "  res.on('data', chunk => { data += chunk; });" >> verifyNoProxy.js
+          echo "  res.on('end', () => {" >> verifyNoProxy.js
+          echo "    console.log('Response from ipify.org:', data);" >> verifyNoProxy.js
+          echo "    fs.writeFileSync('ipify_response.txt', data);" >> verifyNoProxy.js
+          echo "  });" >> verifyNoProxy.js
+          echo "}).on('error', (err) => {" >> verifyNoProxy.js
+          echo "  console.error('Error:', err);" >> verifyNoProxy.js
+          echo "});" >> verifyNoProxy.js
+          node verifyNoProxy.js
+
       - name: Install dependencies
         run: |
           npm install @extractus/article-extractor
@@ -74,3 +90,8 @@ jobs:
           name: extracted-article
           path: extracted-article.json
       
+      - name: Upload ipify_response
+        uses: actions/upload-artifact@v3
+        with:
+          name: ipify_response
+          path: ipify_response.txt
