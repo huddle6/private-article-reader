@@ -76,9 +76,9 @@ const ArticlePage = async ({
         <div>
           {/* Read at source. */}
           <Link
-            href={article.source || "#"}
+            href={url}
             className="flex items-center justify-center gap-2 py-1 my-2 font-bold text-center underline bg-yellow-500 item"
-            >
+          >
             <FiFileText /> <span>Read at source.</span>
           </Link>
 
