@@ -21,47 +21,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install and start Nginx
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y nginx
-          sudo systemctl start nginx
-          sudo systemctl enable nginx
-
-      - name: Configure Nginx as a Proxy
-        run: |
-          echo 'server {
-              listen 8080;
-              location / {
-                  proxy_pass https://example.com;
-                  proxy_set_header Host $host;
-                  proxy_set_header X-Real-IP $remote_addr;
-                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto $scheme;
-              }
-          }' | sudo tee /etc/nginx/sites-available/default
-          sudo systemctl restart nginx
-
-      - name: Check Nginx Status
-        run: |
-          sudo systemctl status nginx
-
-      - name: Verify 
-        run: |
-          echo "const https = require('https');" > verifyNoProxy.js
-          echo "const fs = require('fs');" >> verifyNoProxy.js
-          echo "https.get('https://api.ipify.org', (res) => {" >> verifyNoProxy.js
-          echo "  let data = '';" >> verifyNoProxy.js
-          echo "  res.on('data', chunk => { data += chunk; });" >> verifyNoProxy.js
-          echo "  res.on('end', () => {" >> verifyNoProxy.js
-          echo "    console.log('Response from ipify.org:', data);" >> verifyNoProxy.js
-          echo "    fs.writeFileSync('ipify_response.txt', data);" >> verifyNoProxy.js
-          echo "  });" >> verifyNoProxy.js
-          echo "}).on('error', (err) => {" >> verifyNoProxy.js
-          echo "  console.error('Error:', err);" >> verifyNoProxy.js
-          echo "});" >> verifyNoProxy.js
-          node verifyNoProxy.js
-
       - name: Install dependencies
         run: |
           npm install @extractus/article-extractor
@@ -73,7 +32,7 @@ jobs:
           echo "import('@extractus/article-extractor').then(({ extract }) => {" >> extract.js
           echo "  async function run() {" >> extract.js
           echo "    try {" >> extract.js
-          echo "      const article = await extract(input, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0' }, proxy: 'http://localhost:8080' });" >> extract.js
+          echo "      const article = await extract(input, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0' }});" >> extract.js
           echo "      console.log(JSON.stringify(article, null, 2));" >> extract.js
           echo "      require('fs').writeFileSync('extracted-article.json', JSON.stringify(article, null, 2));" >> extract.js
           echo "    } catch (err) {" >> extract.js
