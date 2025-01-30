@@ -21,17 +21,23 @@ jobs:
         with:
           node-version: '18'  # Updated to Node.js version 18
 
-      - name: Install Nginx
+      - name: Install and start Nginx
         run: |
           sudo apt-get update
           sudo apt-get install -y nginx
+          sudo systemctl start nginx
+          sudo systemctl enable nginx
 
       - name: Configure Nginx as a Proxy
         run: |
           echo 'server {
               listen 8080;
               location / {
-                  proxy_pass $request_uri;
+                  proxy_pass https://api.ipify.org;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
               }
           }' | sudo tee /etc/nginx/sites-available/default
           sudo systemctl restart nginx
