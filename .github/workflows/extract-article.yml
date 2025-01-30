@@ -6,7 +6,7 @@ on:
       url:
         description: 'The URL of the article to extract'
         required: true
-        default: 'https://example.com'  # You can set a default URL if desired
+        default: 'https://example.com'
 
 jobs:
   extract:
@@ -19,7 +19,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Updated to Node.js version 18
+          node-version: '18'
 
       - name: Install and start Nginx
         run: |
@@ -41,6 +41,12 @@ jobs:
               }
           }' | sudo tee /etc/nginx/sites-available/default
           sudo systemctl restart nginx
+
+      - name: Verify Proxy
+        run: |
+          response=$(curl -s -x http://localhost:8080 https://example.com)
+          echo "Response from example.com: $response"
+          echo "$response" > example_response.txt
 
       - name: Install dependencies
         run: |
