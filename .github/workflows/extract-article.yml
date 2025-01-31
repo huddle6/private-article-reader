@@ -22,16 +22,42 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install @extractus/article-extractor
+          npm install @extractus/article-extractor robots-parser
+
+      - name: Check robots.txt
+        id: check_robots
+        run: |
+          echo "const input = '${{ github.event.inputs.url }}';" > check_robots.js
+          echo "const url = require('url');" >> check_robots.js
+          echo "const fetch = require('node-fetch');" >> check_robots.js
+          echo "const robotsParser = require('robots-parser');" >> check_robots.js
+          echo "const parsedUrl = url.parse(input);" >> check_robots.js
+          echo "const robotsUrl = \`\${parsedUrl.protocol}//\${parsedUrl.host}/robots.txt\`;" >> check_robots.js
+          echo "fetch(robotsUrl)" >> check_robots.js
+          echo "  .then(res => res.text())" >> check_robots.js
+          echo "  .then(body => {" >> check_robots.js
+          echo "    const robots = robotsParser(robotsUrl, body);" >> check_robots.js
+          echo "    const isAllowed = robots.isAllowed(input, 'Mozilla/5.0');" >> check_robots.js
+          echo "    if (!isAllowed) {" >> check_robots.js
+          echo "      console.log('Extraction not allowed by robots.txt');" >> check_robots.js
+          echo "      process.exit(1);" >> check_robots.js
+          echo "    }" >> check_robots.js
+          echo "  })" >> check_robots.js
+          echo "  .catch(err => {" >> check_robots.js
+          echo "    console.error('Error fetching robots.txt:', err);" >> check_robots.js
+          echo "    process.exit(1);" >> check_robots.js
+          echo "  });" >> check_robots.js
+          node check_robots.js
 
       - name: Run article extraction
+        if: success()
         id: extract_article
         run: |
           echo "const input = '${{ github.event.inputs.url }}';" > extract.js
           echo "import('@extractus/article-extractor').then(({ extract }) => {" >> extract.js
           echo "  async function run() {" >> extract.js
           echo "    try {" >> extract.js
-          echo "      const article = await extract(input, { headers: { 'User-Agent': 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Safari/537.36' }});" >> extract.js
+          echo "      const article = await extract(input, { headers: { 'User-Agent': 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Safari/537.36' } });" >> extract.js
           echo "      console.log(JSON.stringify(article, null, 2));" >> extract.js
           echo "      require('fs').writeFileSync('extracted-article.json', JSON.stringify(article, null, 2));" >> extract.js
           echo "      const htmlContent = \`<html><body><h1>\${article.title}</h1><p>\${article.content}</p></body></html>\`;" >> extract.js
