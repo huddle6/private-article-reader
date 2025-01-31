@@ -34,6 +34,8 @@ jobs:
           echo "      const article = await extract(input, { headers: { 'User-Agent': 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Safari/537.36' }});" >> extract.js
           echo "      console.log(JSON.stringify(article, null, 2));" >> extract.js
           echo "      require('fs').writeFileSync('extracted-article.json', JSON.stringify(article, null, 2));" >> extract.js
+          echo "      const htmlContent = \`<html><body><h1>\${article.title}</h1><p>\${article.content}</p></body></html>\`;" >> extract.js
+          echo "      require('fs').writeFileSync('extracted-article.html', htmlContent);" >> extract.js
           echo "    } catch (err) {" >> extract.js
           echo "      console.error(err);" >> extract.js
           echo "    }" >> extract.js
@@ -46,4 +48,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: extracted-article
-          path: extracted-article.json
+          path: extracted-article.html
