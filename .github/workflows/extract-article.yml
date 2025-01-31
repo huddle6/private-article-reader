@@ -22,49 +22,18 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install @extractus/article-extractor robots-parser
-
-      - name: Check robots.txt
-        id: check_robots
-        run: |
-          echo "const input = '${{ github.event.inputs.url }}';" > check_robots.js
-          echo "const url = require('url');" >> check_robots.js
-          echo "const fetch = require('node-fetch');" >> check_robots.js
-          echo "const robotsParser = require('robots-parser');" >> check_robots.js
-          echo "const parsedUrl = url.parse(input);" >> check_robots.js
-          echo "const robotsUrl = \`\${parsedUrl.protocol}//\${parsedUrl.host}/robots.txt\`;" >> check_robots.js
-          echo "fetch(robotsUrl)" >> check_robots.js
-          echo "  .then(res => res.text())" >> check_robots.js
-          echo "  .then(body => {" >> check_robots.js
-          echo "    console.log('robots.txt content:');" >> check_robots.js
-          echo "    console.log(body);" >> check_robots.js
-          echo "    const robots = robotsParser(robotsUrl, body);" >> check_robots.js
-          echo "    const isAllowed = robots.isAllowed(input, 'Mozilla/5.0');" >> check_robots.js
-          echo "    if (!isAllowed) {" >> check_robots.js
-          echo "      console.log('Extraction not allowed by robots.txt');" >> check_robots.js
-          echo "      process.exit(1);" >> check_robots.js
-          echo "    }" >> check_robots.js
-          echo "  })" >> check_robots.js
-          echo "  .catch(err => {" >> check_robots.js
-          echo "    console.error('Error fetching robots.txt:', err);" >> check_robots.js
-          echo "    process.exit(1);" >> check_robots.js
-          echo "  });" >> check_robots.js
-          node check_robots.js
+          npm install @extractus/article-extractor
 
       - name: Run article extraction
-        if: success()
         id: extract_article
         run: |
           echo "const input = '${{ github.event.inputs.url }}';" > extract.js
           echo "import('@extractus/article-extractor').then(({ extract }) => {" >> extract.js
           echo "  async function run() {" >> extract.js
           echo "    try {" >> extract.js
-          echo "      const article = await extract(input, { headers: { 'User-Agent': 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Safari/537.36' } });" >> extract.js
+          echo "      const article = await extract(input, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0' }});" >> extract.js
           echo "      console.log(JSON.stringify(article, null, 2));" >> extract.js
           echo "      require('fs').writeFileSync('extracted-article.json', JSON.stringify(article, null, 2));" >> extract.js
-          echo "      const cssStyles = \`body { background-color: #f4ecd8; color: #5b4636; font-family: 'Georgia', serif; font-size: 18px; line-height: 1.6; margin: 40px; } h1 { color: #5b4636; }\`;" >> extract.js
-          echo "      const htmlContent = \`<html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><style>\${cssStyles}</style></head><body><h1>\${article.title}</h1><p>\${article.content}</p></body></html>\`;" >> extract.js
-          echo "      require('fs').writeFileSync('extracted-article.html', htmlContent);" >> extract.js
           echo "    } catch (err) {" >> extract.js
           echo "      console.error(err);" >> extract.js
           echo "    }" >> extract.js
@@ -73,8 +42,49 @@ jobs:
           echo "});" >> extract.js
           node extract.js
 
+      - name: Convert JSON to HTML
+        run: |
+          const fs = require('fs');
+          const article = JSON.parse(fs.readFileSync('extracted-article.json', 'utf8'));
+          
+          // HTML structure
+          const htmlContent = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>${article.title}</title>
+              <link rel="icon" href="${article.favicon}" type="image/png">
+              <style>
+                  body { font-family: Arial, sans-serif; margin: 20px; }
+                  h1 { color: #333; }
+                  img { max-width: 100%; height: auto; }
+              </style>
+          </head>
+          <body>
+              <h1>${article.title}</h1>
+              <img src="${article.image}" alt="${article.title}">
+              <p><strong>Author:</strong> ${article.author}</p>
+              <p><strong>Published on:</strong> ${new Date(article.published).toLocaleDateString()}</p>
+              <p>${article.description}</p>
+              <div>${article.content}</div>
+              <p><strong>Source:</strong> <a href="${article.url}">${article.source}</a></p>
+              <p><strong>Links:</strong> ${article.links.map(link => `<a href="${link}">${link}</a>`).join(', ')}</p>
+          </body>
+          </html>
+          `;
+
+          fs.writeFileSync('extracted-article.html', htmlContent);
+          
       - name: Upload extracted article
         uses: actions/upload-artifact@v4
         with:
           name: extracted-article
+          path: extracted-article.json
+
+      - name: Upload HTML article
+        uses: actions/upload-artifact@v4
+        with:
+          name: extracted-article-html
           path: extracted-article.html
