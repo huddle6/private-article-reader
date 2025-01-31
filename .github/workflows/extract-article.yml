@@ -36,6 +36,8 @@ jobs:
           echo "fetch(robotsUrl)" >> check_robots.js
           echo "  .then(res => res.text())" >> check_robots.js
           echo "  .then(body => {" >> check_robots.js
+          echo "    console.log('robots.txt content:');" >> check_robots.js
+          echo "    console.log(body);" >> check_robots.js
           echo "    const robots = robotsParser(robotsUrl, body);" >> check_robots.js
           echo "    const isAllowed = robots.isAllowed(input, 'Mozilla/5.0');" >> check_robots.js
           echo "    if (!isAllowed) {" >> check_robots.js
