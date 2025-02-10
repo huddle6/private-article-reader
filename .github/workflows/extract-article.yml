@@ -46,6 +46,16 @@ jobs:
         run: |
           echo "${{ secrets.OPENVPN_USERNAME }}" > credentials.txt
           echo "${{ secrets.OPENVPN_PASSWORD }}" >> credentials.txt
+
+      - name: Verify vpnconfig.ovpn File
+        run: |
+          echo "vpnconfig.ovpn start: $(head -c5 vpnconfig.ovpn)"
+          echo "vpnconfig.ovpn end: $(tail -c5 vpnconfig.ovpn)"
+
+      - name: Verify credentials.txt File
+        run: |
+          echo "credentials.txt start: $(head -c5 credentials.txt)"
+          echo "credentials.txt end: $(tail -c5 credentials.txt)"
           
       - name: Connect to VPN
         run: |
