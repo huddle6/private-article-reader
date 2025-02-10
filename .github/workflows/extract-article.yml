@@ -33,24 +33,22 @@ jobs:
           echo "NON_VPN_IP=${NON_VPN_IP}" >> $GITHUB_ENV
 
       # --- VPN Steps Begin ---
-      - name: Install OpenVPN and expect
+      - name: Install OpenVPN 
         run: |
           sudo apt-get update
-          sudo apt-get install -y openvpn expect
+          sudo apt-get install -y openvpn openvpn-systemd-resolved
 
       - name: Deploy VPN configuration file
         run: |
           echo "${{ secrets.OPENVPN_CONFIG }}" > vpnconfig.ovpn
-          
-      - name: Create VPN credentials file
-        run: |
-          echo "${{ secrets.OPENVPN_USERNAME }}" > credentials.txt
-          echo "${{ secrets.OPENVPN_PASSWORD }}" >> credentials.txt
-
+                 
       - name: Connect to VPN
-        run: |
-          # Start OpenVPN with the configuration and credentials file
-          sudo openvpn --config vpnconfig.ovpn --auth-user-pass credentials.txt --daemon
+        uses: "kota65535/github-openvpn-connect-action@v2"
+        with:
+          config_file: vpnconfig.ovpn
+          username: ${{ secrets.OPENVPN_USERNAME }}
+          password: ${{ secrets.OPENVPN_USERNAME }}
+      
       # --- Wait for VPN to Establish and Verify by checking changed IP ---
       - name: Wait for VPN to Establish
         run: |
