@@ -81,10 +81,10 @@ jobs:
       - name: Run article extraction with @mozilla/readability
         id: extract_article
         run: |
-          echo "const { JSDOM } = require('jsdom');" > extract.js
-          echo "const { Readability } = require('@mozilla/readability');" >> extract.js
-          echo "const fetch = require('node-fetch');" >> extract.js
-          echo "const DOMPurify = require('dompurify');" >> extract.js
+          echo "import fetch from 'node-fetch';" > extract.js
+          echo "import { JSDOM } from 'jsdom';" >> extract.js
+          echo "import { Readability } from '@mozilla/readability';" >> extract.js
+          echo "import DOMPurify from 'dompurify';" >> extract.js
           echo "const url = '${{ github.event.inputs.url }}';" >> extract.js
           echo "async function extract() {" >> extract.js
           echo "  const response = await fetch(url);" >> extract.js
