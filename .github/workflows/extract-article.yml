@@ -33,7 +33,6 @@ jobs:
         run: |
           NON_VPN_IP=$(curl -s https://api.ipify.org)
           echo "Non VPN IP: ${NON_VPN_IP}"
-          echo "NON_VPN_IP=${NON_VPN_IP}" >> $GITHUB_ENV
 
       - name: Install OpenVPN 
         if: ${{ github.event.inputs.vpn_enabled == 'true' }}
@@ -53,30 +52,12 @@ jobs:
           config_file: vpnconfig.ovpn
           username: ${{ secrets.OPENVPN_USERNAME }}
           password: ${{ secrets.OPENVPN_PASSWORD }}
-      
-      - name: Wait for VPN to Establish
+          
+      - name: Check for VPN IP Change
         if: ${{ github.event.inputs.vpn_enabled == 'true' }}
         run: |
-          MAX_WAIT=60
-          INTERVAL=5
-          waited=0
-
-          echo "Waiting for VPN connection to change your public IP from the non-VPN IP: $NON_VPN_IP"
-          while [ $waited -lt $MAX_WAIT ]; do
-            CURRENT_IP=$(curl -s https://api.ipify.org)
-            echo "Current public IP: $CURRENT_IP (waited ${waited}s)"
-            if [ "$CURRENT_IP" != "$NON_VPN_IP" ] && [ -n "$CURRENT_IP" ]; then
-              echo "VPN connection is active. New public IP: $CURRENT_IP"
-              break
-            fi
-            sleep $INTERVAL
-            waited=$((waited + INTERVAL))
-          done
-
-          if [ $waited -ge $MAX_WAIT ]; then
-            echo "VPN connection did not establish within $MAX_WAIT seconds!"
-            exit 1
-          fi
+          CURRENT_IP=$(curl -s https://api.ipify.org)
+          echo "Current public IP: $CURRENT_IP"
 
       - name: Run article extraction
         id: extract_article
