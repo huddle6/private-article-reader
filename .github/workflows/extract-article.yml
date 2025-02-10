@@ -87,9 +87,25 @@ jobs:
         run: |
           echo "Disconnecting VPN..."
           sudo pkill openvpn || echo "OpenVPN not running"
+          
+      - name: Convert JSON to HTML
+        run: |
+          echo "const fs = require('fs');" > convert-to-html.js
+          echo "const jsonData = require('./extracted-article.json');" >> convert-to-html.js
+          echo "" >> convert-to-html.js
+          echo "function getSafeValue(value, defaultValue = 'N/A') {" >> convert-to-html.js
+          echo "  return value && value.trim() !== '' ? value : defaultValue;" >> convert-to-html.js
+          echo "}" >> convert-to-html.js
+          echo "" >> convert-to-html.js
+          echo "const htmlContent = \`" >> convert-to-html.js
+          echo "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>\${getSafeValue(jsonData.title)}</title></head><body><h1>\${getSafeValue(jsonData.title)}</h1><p><strong>By \${getSafeValue(jsonData.author)}</strong></p><p><em>Published on \${getSafeValue(jsonData.date)}</em></p><div>\${jsonData.content || ''}</div></body></html>\`;" >> convert-to-html.js
+          echo "fs.writeFileSync('extracted-article.html', htmlContent);" >> convert-to-html.js
+          node convert-to-html.js
 
       - name: Upload extracted article
         uses: actions/upload-artifact@v4
         with:
           name: extracted-article
-          path: extracted-article.json
+          path: |
+            extracted-article.json
+            extracted-article.html
