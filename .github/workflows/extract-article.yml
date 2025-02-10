@@ -81,26 +81,30 @@ jobs:
       - name: Run article extraction with @mozilla/readability
         id: extract_article
         run: |
-          echo "const fetch = require('node-fetch');" > extract.js
-          echo "const { JSDOM } = require('jsdom');" >> extract.js
-          echo "const { Readability } = require('@mozilla/readability');" >> extract.js
-          echo "const DOMPurify = require('dompurify');" >> extract.js
-          echo "const url = '${{ github.event.inputs.url }}';" >> extract.js
-          echo "async function extract() {" >> extract.js
-          echo "  const response = await fetch(url);" >> extract.js
-          echo "  const html = await response.text();" >> extract.js
-          echo "  const dom = new JSDOM(html);" >> extract.js
-          echo "  const documentClone = dom.window.document.cloneNode(true);" >> extract.js
-          echo "  const article = new Readability(documentClone).parse();" >> extract.js
-          echo "  // Sanitize the article content using DOMPurify" >> extract.js
-          echo "  const sanitizedContent = DOMPurify.sanitize(article.content);" >> extract.js
-          echo "  article.content = sanitizedContent;" >> extract.js
-          echo "  console.log(JSON.stringify(article, null, 2));" >> extract.js
-          echo "  require('fs').writeFileSync('extracted-article.json', JSON.stringify(article, null, 2));" >> extract.js
-          echo "}" >> extract.js
-          echo "extract().catch(err => {" >> extract.js
-          echo "  console.error('Error extracting article:', err);" >> extract.js
-          echo "});" >> extract.js
+          echo "(async () => {" > extract.js
+          echo "  const { default: fetch } = await import('node-fetch');" >> extract.js
+          echo "  const { JSDOM } = require('jsdom');" >> extract.js
+          echo "  const { Readability } = require('@mozilla/readability');" >> extract.js
+          echo "  const DOMPurify = require('dompurify');" >> extract.js
+          echo "  const url = '${{ github.event.inputs.url }}';" >> extract.js
+          echo "" >> extract.js
+          echo "  async function extract() {" >> extract.js
+          echo "    const response = await fetch(url);" >> extract.js
+          echo "    const html = await response.text();" >> extract.js
+          echo "    const dom = new JSDOM(html);" >> extract.js
+          echo "    const documentClone = dom.window.document.cloneNode(true);" >> extract.js
+          echo "    const article = new Readability(documentClone).parse();" >> extract.js
+          echo "    // Sanitize the article content using DOMPurify" >> extract.js
+          echo "    const sanitizedContent = DOMPurify.sanitize(article.content);" >> extract.js
+          echo "    article.content = sanitizedContent;" >> extract.js
+          echo "    console.log(JSON.stringify(article, null, 2));" >> extract.js
+          echo "    require('fs').writeFileSync('extracted-article.json', JSON.stringify(article, null, 2));" >> extract.js
+          echo "  }" >> extract.js
+          echo "" >> extract.js
+          echo "  extract().catch(err => {" >> extract.js
+          echo "    console.error('Error extracting article:', err);" >> extract.js
+          echo "  });" >> extract.js
+          echo "})();" >> extract.js
           node extract.js
 
       - name: Disconnect VPN
