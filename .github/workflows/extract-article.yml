@@ -26,7 +26,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install @mozilla/readability jsdom node-fetch dompurify
+          npm install @extractus/article-extractor
 
       - name: Get non-VPN Public IP
         id: check_nonvpn_ip
@@ -78,40 +78,23 @@ jobs:
             exit 1
           fi
 
-      - name: Run article extraction with @mozilla/readability
+      - name: Run article extraction
         id: extract_article
         run: |
-          echo "(async () => {" > extract.js
-          echo "  const { default: fetch } = await import('node-fetch');" >> extract.js
-          echo "  const { JSDOM } = require('jsdom');" >> extract.js
-          echo "  const { Readability } = require('@mozilla/readability');" >> extract.js
-          echo "  const DOMPurify = require('dompurify');" >> extract.js
-          echo "  const url = '${{ github.event.inputs.url }}';" >> extract.js
-          echo "" >> extract.js
-          echo "  async function extract() {" >> extract.js
-          echo "    const response = await fetch(url);" >> extract.js
-          echo "    const html = await response.text();" >> extract.js
-          echo "    const dom = new JSDOM(html);" >> extract.js
-          echo "    const documentClone = dom.window.document.cloneNode(true);" >> extract.js
-          echo "    const article = new Readability(documentClone).parse();" >> extract.js
-          echo "    // Sanitize the article content using DOMPurify" >> extract.js
-          echo "    const sanitizedContent = DOMPurify.sanitize(article.content);" >> extract.js
-          echo "    article.content = sanitizedContent;" >> extract.js
-          echo "    console.log(JSON.stringify(article, null, 2));" >> extract.js
-          echo "    require('fs').writeFileSync('extracted-article.json', JSON.stringify(article, null, 2));" >> extract.js
+          echo "const input = '${{ github.event.inputs.url }}';" > extract.js
+          echo "import('@extractus/article-extractor').then(({ extract }) => {" >> extract.js
+          echo "  async function run() {" >> extract.js
+          echo "    try {" >> extract.js
+          echo "      const article = await extract(input);" >> extract.js
+          echo "      console.log(JSON.stringify(article, null, 2));" >> extract.js
+          echo "      require('fs').writeFileSync('extracted-article.json', JSON.stringify(article, null, 2));" >> extract.js
+          echo "    } catch (err) {" >> extract.js
+          echo "      console.error('Error:', err);" >> extract.js
+          echo "    }" >> extract.js
           echo "  }" >> extract.js
-          echo "" >> extract.js
-          echo "  extract().catch(err => {" >> extract.js
-          echo "    console.error('Error extracting article:', err);" >> extract.js
-          echo "  });" >> extract.js
-          echo "})();" >> extract.js
+          echo "  run();" >> extract.js
+          echo "});" >> extract.js
           node extract.js
-
-      - name: Disconnect VPN
-        if: ${{ github.event.inputs.vpn_enabled == 'true' }}
-        run: |
-          echo "Disconnecting VPN..."
-          sudo pkill openvpn || echo "OpenVPN not running"
 
       - name: Convert JSON to HTML
         run: |
@@ -126,6 +109,12 @@ jobs:
           echo "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>\${getSafeValue(jsonData.title)}</title></head><body><h1>\${getSafeValue(jsonData.title)}</h1><p><strong>By \${getSafeValue(jsonData.byline)}</strong></p><p><em>Published on \${getSafeValue(jsonData.publishedTime)}</em></p><div>\${jsonData.content || ''}</div></body></html>\`;" >> convert-to-html.js
           echo "fs.writeFileSync('extracted-article.html', htmlContent);" >> convert-to-html.js
           node convert-to-html.js
+
+      - name: Disconnect VPN
+        if: ${{ github.event.inputs.vpn_enabled == 'true' }}
+        run: |
+          echo "Disconnecting VPN..."
+          sudo pkill openvpn || echo "OpenVPN not running"
 
       - name: Upload extracted article as JSON and HTML
         uses: actions/upload-artifact@v4
