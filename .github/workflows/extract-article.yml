@@ -24,6 +24,29 @@ jobs:
         run: |
           npm install @extractus/article-extractor
 
+      # --- VPN Steps Begin ---
+      - name: Install OpenVPN and expect
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openvpn expect
+
+      - name: Deploy VPN configuration file
+        run: |
+          echo "${{ secrets.OPENVPN_CONFIG }}" > vpnconfig.ovpn
+          
+      - name: Create VPN credentials file
+        run: |
+          echo "${{ secrets.OPENVPN_USERNAME }}" > credentials.txt
+          echo "${{ secrets.OPENVPN_PASSWORD }}" >> credentials.txt
+          
+      - name: Connect to VPN
+        run: |
+          # Start OpenVPN with the configuration and credentials file
+          sudo openvpn --config vpnconfig.ovpn --auth-user-pass credentials.txt --daemon
+          # Wait for the VPN connection to establish
+          sleep 10
+      # --- VPN Steps End ---
+
       - name: Run article extraction
         id: extract_article
         run: |
@@ -47,4 +70,3 @@ jobs:
         with:
           name: extracted-article
           path: extracted-article.json
-      
