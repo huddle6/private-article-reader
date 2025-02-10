@@ -22,9 +22,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install @extractus/article-extractor
+          npm install @postlight/parser
 
-      # --- Get non-VPN public IP ---
       - name: Get non-VPN Public IP
         id: check_nonvpn_ip
         run: |
@@ -32,7 +31,6 @@ jobs:
           echo "Non VPN IP: ${NON_VPN_IP}"
           echo "NON_VPN_IP=${NON_VPN_IP}" >> $GITHUB_ENV
 
-      # --- VPN Steps Begin ---
       - name: Install OpenVPN 
         run: |
           sudo apt-get update
@@ -49,7 +47,6 @@ jobs:
           username: ${{ secrets.OPENVPN_USERNAME }}
           password: ${{ secrets.OPENVPN_PASSWORD }}
       
-      # --- Wait for VPN to Establish and Verify by checking changed IP ---
       - name: Wait for VPN to Establish
         run: |
           MAX_WAIT=60
@@ -72,27 +69,20 @@ jobs:
             echo "VPN connection did not establish within $MAX_WAIT seconds!"
             exit 1
           fi
-      # --- VPN Steps End ---
 
-      - name: Run article extraction
+      - name: Run article extraction with @postlight/parser
         id: extract_article
         run: |
-          echo "const input = '${{ github.event.inputs.url }}';" > extract.js
-          echo "import('@extractus/article-extractor').then(({ extract }) => {" >> extract.js
-          echo "  async function run() {" >> extract.js
-          echo "    try {" >> extract.js
-          echo "      const article = await extract(input, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0' }});" >> extract.js
-          echo "      console.log(JSON.stringify(article, null, 2));" >> extract.js
-          echo "      require('fs').writeFileSync('extracted-article.json', JSON.stringify(article, null, 2));" >> extract.js
-          echo "    } catch (err) {" >> extract.js
-          echo "      console.error(err);" >> extract.js
-          echo "    }" >> extract.js
-          echo "  }" >> extract.js
-          echo "  run();" >> extract.js
+          echo "const Parser = require('@postlight/parser');" > extract.js
+          echo "const url = '${{ github.event.inputs.url }}';" >> extract.js
+          echo "Parser.parse(url).then(result => {" >> extract.js
+          echo "  console.log(JSON.stringify(result, null, 2));" >> extract.js
+          echo "  require('fs').writeFileSync('extracted-article.json', JSON.stringify(result, null, 2));" >> extract.js
+          echo "}).catch(err => {" >> extract.js
+          echo "  console.error('Error extracting article:', err);" >> extract.js
           echo "});" >> extract.js
           node extract.js
 
-      # --- Disconnect VPN ---
       - name: Disconnect VPN
         run: |
           echo "Disconnecting VPN..."
