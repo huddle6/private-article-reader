@@ -6,6 +6,10 @@ on:
       url:
         description: 'The URL of the article to extract'
         required: true
+      vpn_enabled:
+        description: 'Enable VPN connection? (true/false)'
+        required: true
+        default: 'false'
 
 jobs:
   extract:
@@ -32,15 +36,18 @@ jobs:
           echo "NON_VPN_IP=${NON_VPN_IP}" >> $GITHUB_ENV
 
       - name: Install OpenVPN 
+        if: ${{ github.event.inputs.vpn_enabled == 'true' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y openvpn openvpn-systemd-resolved
 
       - name: Deploy VPN configuration file
+        if: ${{ github.event.inputs.vpn_enabled == 'true' }}
         run: |
           echo "${{ secrets.OPENVPN_CONFIG }}" > vpnconfig.ovpn
                  
       - name: Connect to VPN
+        if: ${{ github.event.inputs.vpn_enabled == 'true' }}
         uses: "kota65535/github-openvpn-connect-action@v2"
         with:
           config_file: vpnconfig.ovpn
@@ -48,6 +55,7 @@ jobs:
           password: ${{ secrets.OPENVPN_PASSWORD }}
       
       - name: Wait for VPN to Establish
+        if: ${{ github.event.inputs.vpn_enabled == 'true' }}
         run: |
           MAX_WAIT=60
           INTERVAL=5
@@ -84,10 +92,11 @@ jobs:
           node extract.js
 
       - name: Disconnect VPN
+        if: ${{ github.event.inputs.vpn_enabled == 'true' }}
         run: |
           echo "Disconnecting VPN..."
           sudo pkill openvpn || echo "OpenVPN not running"
-          
+
       - name: Convert JSON to HTML
         run: |
           echo "const fs = require('fs');" > convert-to-html.js
@@ -102,7 +111,7 @@ jobs:
           echo "fs.writeFileSync('extracted-article.html', htmlContent);" >> convert-to-html.js
           node convert-to-html.js
 
-      - name: Upload extracted article
+      - name: Upload extracted article as JSON and HTML
         uses: actions/upload-artifact@v4
         with:
           name: extracted-article
