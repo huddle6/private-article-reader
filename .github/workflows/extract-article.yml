@@ -94,6 +94,12 @@ jobs:
           echo "});" >> extract.js
           node extract.js
 
+      # --- Disconnect VPN ---
+      - name: Disconnect VPN
+        run: |
+          echo "Disconnecting VPN..."
+          sudo pkill openvpn || echo "OpenVPN not running"
+
       - name: Upload extracted article
         uses: actions/upload-artifact@v4
         with:
