@@ -47,7 +47,7 @@ jobs:
         with:
           config_file: vpnconfig.ovpn
           username: ${{ secrets.OPENVPN_USERNAME }}
-          password: ${{ secrets.OPENVPN_USERNAME }}
+          password: ${{ secrets.OPENVPN_PASSWORD }}
       
       # --- Wait for VPN to Establish and Verify by checking changed IP ---
       - name: Wait for VPN to Establish
