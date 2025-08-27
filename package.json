@@ -35,10 +35,6 @@
     "@types/validator": "^13.7.0",
     "@tailwindcss/typography": "^0.5.9"
   },
-  "author": {
-    "name": "Ketan Iralepatil",
-    "url": "https://ketaniralepatil.com"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/huddle6/private-article-reader.git"
