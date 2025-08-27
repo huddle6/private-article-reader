@@ -1,7 +1,7 @@
 {
   "name": "private-article-reader",
   "version": "0.3.0",
-  "description": "This project is aimed at providing a simple distraction free way to read and enjoy articles.",
+  "description": "This project is aimed at providing a simple distraction free way to read and enjoy articles. ",
   "license": "MIT",
   "private": true,
   "scripts": {
