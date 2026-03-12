@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Enable version updates for npm (JavaScript/TypeScript)
+  # Enable version updates for npm (JavaScript/TypeScript) 
   - package-ecosystem: "npm"
     # Look for `package.json` and `lock` files in the root directory
     directory: "/"
