@@ -98,7 +98,7 @@ jobs:
           sudo pkill openvpn || echo "OpenVPN not running"
 
       - name: Upload extracted article as JSON and HTML
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: extracted-article
           path: |
