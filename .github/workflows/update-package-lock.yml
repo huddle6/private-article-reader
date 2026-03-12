@@ -1,6 +1,7 @@
 name: Update package-lock.json
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'package.json'
